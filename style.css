@@ -31,10 +31,10 @@ h1,h2,h3,h4,h5,h6,p{
 
 .navbar {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
     padding: 5px 20px;
-    max-width: 800px;
+    max-width: 840px;
     margin-left: auto;
     margin-right: auto;
     margin-top: 2rem;
@@ -50,6 +50,8 @@ h1,h2,h3,h4,h5,h6,p{
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    width: 350px;
+    text-align: center;
 }
 
 h2 > a {
@@ -59,4 +61,60 @@ h2 > a {
 
 canvas {
     background-image: url("./background.png");
+}
+
+img {
+    float: right;
+    border-radius: 12px;
+}
+
+#me {
+    max-width: 250px;
+    max-width: 250px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 1);
+    margin-left: 1rem;
+}
+
+@media (max-width: 768px) {
+    img {
+        float: none;
+        margin-right: auto;
+        margin-left: auto !important;
+        display: block;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+}
+
+p {
+    font-size: 1.2rem;
+}
+
+h3 {
+    font-size: 1.4rem;
+}
+
+.contacts {
+    font-size: 5rem;
+    text-decoration: none;
+}
+
+.contacts > a {
+    color: wheat;
+    text-decoration: none;
+}
+
+.projects {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.project {
+    display: flex; 
+    align-items: center; 
+    background-color: red;
+    justify-content: center;
+    width: 250px;
+    height: 250px;
+    border-radius: 12px;
 }
