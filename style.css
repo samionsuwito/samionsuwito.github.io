@@ -8,10 +8,10 @@ body {
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 3rem;
+    margin-top: 2rem;
     padding: 20px;
 
-    background: rgba(0, 0, 0, 0.34);
+    background: rgba(0, 0, 0, 0.44);
     border-radius: 12px;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
@@ -38,19 +38,25 @@ h1,h2,h3,h4,h5,h6,p{
     margin-left: auto;
     margin-right: auto;
     margin-top: 2rem;
+}
 
-    background: rgba(0, 0, 0, 0.34);
+.navbar > h2 {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 30px;
+    padding-right: 30px;
+    background: rgba(0, 0, 0, 0.44);
     border-radius: 12px;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 }
 
-.navbar > h2 {
-    margin: 4px;
-}
-
 h2 > a {
     color: wheat;
     text-decoration: none;
+}
+
+canvas {
+    background-image: url("./background.png");
 }
