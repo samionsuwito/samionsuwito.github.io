@@ -17,6 +17,7 @@ body {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     /* border: 1px solid rgba(255, 255, 255, 0.71); */
+    margin-bottom: 2rem;
 }
 
 h1 {
@@ -66,12 +67,12 @@ canvas {
 img {
     float: right;
     border-radius: 12px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 1);
 }
 
 #me {
     max-width: 250px;
     max-width: 250px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 1);
     margin-left: 1rem;
 }
 
@@ -107,14 +108,77 @@ h3 {
 .projects {
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-between;
 }
 
 .project {
+    position: relative;
     display: flex; 
     align-items: center; 
-    background-color: red;
     justify-content: center;
     width: 250px;
     height: 250px;
     border-radius: 12px;
+    transition: 0.3s;
+    overflow: hidden;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 1); 
 }
+
+.project::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0);
+    transition: background 0.3s;
+}
+
+.project:hover::before {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.project-title {
+    text-align: center;
+    position: relative;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.3s, opacity 0.3s;
+}
+
+.project:hover .project-title {
+    visibility: visible;
+    opacity: 1;
+}
+
+.project:hover {
+    transition: 0.3s;
+}
+
+.projects > a {
+    color: wheat;
+    text-decoration: none;
+}
+
+#mario {
+    background: url("assets/mario.webp");
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+#cells {
+    background: url("assets/trefoil.gif");
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+#fish {
+    background: url("assets/fish.webp");
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.links {
+    color: #57a8ff;
+    text-decoration: underline;
+}
+
