@@ -108,7 +108,7 @@ h3 {
 .projects {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: space-around;
 }
 
 .project {
@@ -122,6 +122,7 @@ h3 {
     transition: 0.3s;
     overflow: hidden;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 1); 
+    margin-bottom: 1rem;
 }
 
 .project::before {
