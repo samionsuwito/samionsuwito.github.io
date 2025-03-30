@@ -1,20 +1,23 @@
 @font-face {
   font-family: 'Anton';
-  src: url('./assets/fonts/Anton-Regular.ttf') format('truetype');
+  /* src: url('./assets/fonts/Anton-Regular.ttf') format('truetype'); */
+  src: url('../public/fonts/anton-regular-webfont.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Playfair';
-  src: url('./assets/fonts/Playfair-VariableFont_opsz,wdth,wght.ttf') format('truetype');
+  /* src: url('./assets/fonts/Playfair-VariableFont_opsz,wdth,wght.ttf') format('truetype'); */
+  src: url('../public/fonts/PlayfairRomanVF.woff2') format('woff2');
   font-weight: 100 900;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Playfair';
-  src: url('./assets/fonts/Playfair-Italic-VariableFont_opsz,wdth,wght.ttf') format('truetype');
+  /* src: url('./assets/fonts/Playfair-Italic-VariableFont_opsz,wdth,wght.ttf') format('truetype'); */
+  src: url('../public/fonts/PlayfairItalicVF.woff2') format('woff2');
   font-weight: 100 900;
   font-style: italic;
 }
