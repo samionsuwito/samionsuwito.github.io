@@ -1,42 +1,200 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+@font-face {
+  font-family: 'Anton';
+  src: url('./assets/fonts/Anton-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+@font-face {
+  font-family: 'Playfair';
+  src: url('./assets/fonts/Playfair-VariableFont_opsz,wdth,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+@font-face {
+  font-family: 'Playfair';
+  src: url('./assets/fonts/Playfair-Italic-VariableFont_opsz,wdth,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+}
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.hero-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  padding: 40px;
+  box-sizing: border-box;
+  align-items: center;
+}
+
+.hero-title {
+  width: 35%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-title h1 {
+  font-family: 'Anton', sans-serif;
+  font-size: 9rem;
+  font-weight: 400;
+  letter-spacing: 10px;
+  line-height: 1;
+  color: rgb(255, 0, 0);
+  mix-blend-mode: difference;
+  -webkit-text-fill-color: initial;
+  transform: translateZ(50px);
+  padding: 10px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  transform: scale(1, 1.3);
+  transition: text-shadow 1s ease;
+}
+
+.hero-title h1:hover {
+  text-shadow: 0 0 20px #f00;
+}
+
+.hero-card {
+  width: 70%;
+  height: auto;
+  padding: 40px;
+}
+
+.card-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: "Playfair", serif;
+  background: transparent;
+  position: relative;
+  z-index: 0;
+}
+
+.card-content h2 {
+  margin-bottom: 24px;
+  font-size: 4rem;
+  font-style: italic;
+  font-weight: 900;
+  color: white;
+  line-height: 0.8;
+}
+
+.project-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr; 
+  gap: 24px; 
+  height: calc(100% - 60px); 
+}
+
+.project-image {
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 12px;
+  height: 100%; 
+}
+
+.project-image img {
+  width: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.project-details {
+  display: flex;
+  flex-direction: column;
+  height: 100%; 
+}
+
+.project-details h3 {
+  margin-bottom: 16px;
+  font-size: 2.1rem;
+  font-weight: 100;
+  line-height: 1;
+}
+
+.project-details p { 
+  color: white;
+  font-size: 1.2rem;
+  margin-bottom: 24px;
+  font-weight: 400;
+}
+
+.contact-icons {
+  display: flex;
+  gap: 32px;
+  margin-top: 16px;
+  margin-left: auto; 
+  margin-right: auto;
+}
+
+.contact-icons a {
+  color: white;
+  font-size: 4rem;
+  transition: 0.3s ease;
+}
+
+.contact-icons a:hover {
+  color: #ff0000; 
+  filter: drop-shadow(0 0 2px #f00); 
+  transform: scale(1.2);
+}
+
+@media (max-width: 1000px) {
+  .hero-container {
+    flex-direction: column;
   }
-  to {
-    transform: rotate(360deg);
+  
+  .hero-title, .hero-card {
+    width: 100%;
+    padding: 20px;
   }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+  
+  .hero-title {
+    margin-bottom: 40px;
   }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+  
+  .hero-title h1 {
+    font-size: 4.5rem;
+  }
+  
+  .hero-card {
+    height: auto;
+  }
+  
+  .project-info {
+    grid-template-columns: 1fr;
+    gap: 16px; 
+  }
 }
