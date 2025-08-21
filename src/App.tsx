@@ -29,7 +29,7 @@ function App() {
                     i was born and raised in hong kong and am now studying computer science at UC Berkeley. I love to make cool and fun projects which you can take a look at below. I'm currently working with Codebase and Sky Computing Lab at Berkeley. Outside of my studies, I enjoy fencing and listening to music. <br /> <br />Feel free to reach out on any of my contacts listed here:
                   </p>
                   <div className="contact-icons">
-                    <a href="mailto:samion@example.com" target="_blank" rel="noopener noreferrer">
+                    <a href="mailto:samion@berkeley.edu" target="_blank" rel="noopener noreferrer">
                       <FontAwesomeIcon icon={faEnvelope} />
                     </a>
                     <a href="https://github.com/samionsuwito" target="_blank" rel="noopener noreferrer">
