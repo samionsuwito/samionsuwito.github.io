@@ -41,15 +41,15 @@ function themeColors(): ThemeColors {
   return document.documentElement.dataset.theme === 'light' ? LIGHT : DARK;
 }
 
-const NAME_FONT = '600 40px "Helvetica Neue", Helvetica, Arial, sans-serif';
-const BIO_FONT = '400 24px "Helvetica Neue", Helvetica, Arial, sans-serif';
-const RAIL_FONT = 'italic 34px Georgia, "Times New Roman", Times, serif';
-const NAME_SIZE = 40;
-const BIO_SIZE = 24;
-const RAIL_SIZE = 34;
-const NAME_LH = 48;
-const BIO_LH = 34;
-const RAIL_LH = 46;
+const NAME_FONT = '600 32px "Helvetica Neue", Helvetica, Arial, sans-serif';
+const BIO_FONT = '400 20px "Helvetica Neue", Helvetica, Arial, sans-serif';
+const RAIL_FONT = 'italic 28px Georgia, "Times New Roman", Times, serif';
+const NAME_SIZE = 32;
+const BIO_SIZE = 20;
+const RAIL_SIZE = 28;
+const NAME_LH = 38;
+const BIO_LH = 28;
+const RAIL_LH = 38;
 const FLY_MS = 2400;
 const STAGGER_MS = 1600;
 
@@ -263,8 +263,8 @@ export function startAssemble(options: {
 
   function metricsFor(width: number) {
     const mobile = width < 720;
-    const railW = mobile ? 104 : Math.min(width * 0.34, 440);
-    const contentW = Math.min(640, Math.max(200, width - (mobile ? 220 : railW * 2 + 48)));
+    const railW = mobile ? 92 : Math.min(width * 0.32, 410);
+    const contentW = Math.min(600, Math.max(200, width - (mobile ? 200 : railW * 2 + 48)));
     const bioPrepared = prepareWithSegments(BIO, BIO_FONT);
     const bioLayout = layout(bioPrepared, contentW, BIO_LH);
     return { mobile, railW, contentW, nameH: NAME_LH, bioH: bioLayout.height };
