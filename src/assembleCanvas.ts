@@ -122,7 +122,7 @@ function layoutGlyphs(
   lineHeight: number,
   originX: number,
   originY: number,
-  align: 'left' | 'center',
+  align: 'left' | 'center' | 'right',
 ): Glyph[] {
   const prepared = prepareWithSegments(text, font);
   const { lines } = layoutWithLines(prepared, maxWidth, lineHeight);
@@ -131,11 +131,16 @@ function layoutGlyphs(
 
   for (let i = 0; i < lines.length; i += 1) {
     const line = lines[i];
-    let x = align === 'center' ? originX + (maxWidth - line.width) / 2 : originX;
+    const chars = eachGrapheme(line.text);
+    const widths = chars.map((ch) => measureCtx.measureText(ch).width);
+    const total = widths.reduce((sum, w) => sum + w, 0);
+    let x = originX;
+    if (align === 'center') x = originX + (maxWidth - total) / 2;
+    else if (align === 'right') x = originX + maxWidth - total;
     const y = originY + i * lineHeight;
-    for (const ch of eachGrapheme(line.text)) {
-      glyphs.push({ ch, x, y });
-      x += measureCtx.measureText(ch).width;
+    for (let c = 0; c < chars.length; c += 1) {
+      glyphs.push({ ch: chars[c], x, y });
+      x += widths[c];
     }
   }
 
@@ -303,7 +308,7 @@ export function startAssemble(options: {
     ];
 
     leftPad = mobile ? 10 : 18;
-    rightPad = mobile ? 10 : 18;
+    rightPad = mobile ? 8 : 10;
     railInner = Math.max(64, railW - (mobile ? 18 : 40));
 
     const minRail = viewH + RAIL_LH * 4;
@@ -321,7 +326,7 @@ export function startAssemble(options: {
       RAIL_LH,
       viewW - rightPad - railInner,
       0,
-      'left',
+      'right',
     ).map((glyph) => ({
       ...glyph,
       side: 'right' as const,
