@@ -16,20 +16,40 @@ const LOREM_WORDS = [
   'jinx', 'zebra', 'quorum', 'flux', 'wyvern', 'kyoto', 'xenon', 'jakob',
 ];
 
-const BG = '#f4f4f2';
-const RAIL_COLOR: RGB = [122, 122, 116];
-const NAME_COLOR: RGB = [17, 17, 17];
-const BIO_COLOR: RGB = [51, 51, 51];
+type ThemeColors = {
+  bg: string;
+  rail: RGB;
+  name: RGB;
+  bio: RGB;
+};
 
-const NAME_FONT = '600 24px "Helvetica Neue", Helvetica, Arial, sans-serif';
-const BIO_FONT = '400 16.8px "Helvetica Neue", Helvetica, Arial, sans-serif';
-const RAIL_FONT = 'italic 22px Georgia, "Times New Roman", Times, serif';
-const NAME_SIZE = 24;
-const BIO_SIZE = 16.8;
-const RAIL_SIZE = 22;
-const NAME_LH = 28;
-const BIO_LH = 26;
-const RAIL_LH = 31;
+const LIGHT: ThemeColors = {
+  bg: '#f4f4f2',
+  rail: [122, 122, 116],
+  name: [17, 17, 17],
+  bio: [51, 51, 51],
+};
+
+const DARK: ThemeColors = {
+  bg: '#111111',
+  rail: [120, 120, 114],
+  name: [242, 242, 238],
+  bio: [196, 196, 190],
+};
+
+function themeColors(): ThemeColors {
+  return document.documentElement.dataset.theme === 'light' ? LIGHT : DARK;
+}
+
+const NAME_FONT = '600 40px "Helvetica Neue", Helvetica, Arial, sans-serif';
+const BIO_FONT = '400 24px "Helvetica Neue", Helvetica, Arial, sans-serif';
+const RAIL_FONT = 'italic 34px Georgia, "Times New Roman", Times, serif';
+const NAME_SIZE = 40;
+const BIO_SIZE = 24;
+const RAIL_SIZE = 34;
+const NAME_LH = 48;
+const BIO_LH = 34;
+const RAIL_LH = 46;
 const FLY_MS = 2400;
 const STAGGER_MS = 1600;
 
@@ -45,7 +65,7 @@ type Glyph = {
 type DestGlyph = Glyph & {
   font: string;
   size: number;
-  color: RGB;
+  role: 'name' | 'bio';
 };
 
 type Flyer = {
@@ -56,6 +76,7 @@ type Flyer = {
   fromY: number;
   fromSize: number;
   peeled: boolean;
+  sourceIndex: number | null;
 };
 
 const measureCanvas = document.createElement('canvas');
@@ -79,6 +100,11 @@ function lerpRgb(a: RGB, b: RGB, t: number): RGB {
 
 function rgb(color: RGB, alpha = 1) {
   return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
+}
+
+function hexAlpha(hex: string, alpha: number) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
 }
 
 function ease(t: number) {
@@ -157,49 +183,45 @@ function wrapY(y: number, loop: number) {
   return wrapped;
 }
 
-function findSource(
-  ch: string,
-  destX: number,
-  destY: number,
-  rails: Glyph[],
-  used: Set<number>,
-  viewH: number,
-  leftScroll: number,
-  rightScroll: number,
-  leftLoop: number,
-  rightLoop: number,
-) {
-  const preferLeft = destX < window.innerWidth / 2;
-  let best = -1;
-  let bestScore = Infinity;
+function cellKey(glyph: Glyph) {
+  return `${glyph.side}:${Math.round(glyph.x)}:${Math.round(glyph.y)}`;
+}
 
-  for (let i = 0; i < rails.length; i += 1) {
-    if (used.has(i)) continue;
-    const glyph = rails[i];
-    if (isSpace(glyph.ch)) continue;
+function assignSources(dest: DestGlyph[], rails: Glyph[], viewW: number) {
+  const claimed = new Set<number>();
+  const claimedCells = new Set<string>();
 
-    const loop = glyph.side === 'left' ? leftLoop : rightLoop;
-    const scroll = glyph.side === 'left' ? leftScroll : rightScroll;
-    const y = wrapY(glyph.y + scroll, loop);
-    const onScreen = y >= -RAIL_LH && y <= viewH + RAIL_LH;
-    const same = glyph.ch === ch;
-    const fold = glyph.ch.toLowerCase() === ch.toLowerCase();
-    const dx = glyph.x - destX;
-    const dy = y - destY;
-    let score = dx * dx + dy * dy;
-    if (same) score *= 1;
-    else if (fold) score *= 6;
-    else score *= 35;
-    if (!onScreen) score *= 20;
-    if ((glyph.side === 'left') !== preferLeft) score *= 3;
+  return dest.map((letter) => {
+    if (isSpace(letter.ch)) return null;
 
-    if (score < bestScore) {
-      bestScore = score;
-      best = i;
+    const preferLeft = letter.x < viewW / 2;
+    let best = -1;
+    let bestScore = Infinity;
+
+    for (let i = 0; i < rails.length; i += 1) {
+      if (claimed.has(i)) continue;
+      const glyph = rails[i];
+      if (isSpace(glyph.ch)) continue;
+      if (claimedCells.has(cellKey(glyph))) continue;
+      if (glyph.ch.toLowerCase() !== letter.ch.toLowerCase()) continue;
+
+      const dx = glyph.x - letter.x;
+      const dy = glyph.y - letter.y;
+      let score = dx * dx + dy * dy * 0.35;
+      if (glyph.ch !== letter.ch) score *= 8;
+      if ((glyph.side === 'left') !== preferLeft) score *= 3;
+
+      if (score < bestScore) {
+        bestScore = score;
+        best = i;
+      }
     }
-  }
 
-  return best === -1 ? null : best;
+    if (best < 0) return null;
+    claimed.add(best);
+    claimedCells.add(cellKey(rails[best]));
+    return best;
+  });
 }
 
 export type AssembleHandle = {
@@ -222,7 +244,6 @@ export function startAssemble(options: {
   let dest: DestGlyph[] = [];
   let flyers: Flyer[] = [];
   let used = new Set<number>();
-  let taken: { ch: string; side?: 'left' | 'right' }[] = [];
   let leftText = '';
   let rightText = '';
   const railSeed = Date.now();
@@ -238,17 +259,19 @@ export function startAssemble(options: {
   let settled = reduced;
   let assembleStart = 0;
   let started = false;
+  let rebuilding = false;
 
   function metricsFor(width: number) {
     const mobile = width < 720;
-    const railW = mobile ? 76 : Math.min(width * 0.3, 380);
-    const contentW = Math.min(576, Math.max(200, width - (mobile ? 168 : railW * 2 + 48)));
+    const railW = mobile ? 104 : Math.min(width * 0.34, 440);
+    const contentW = Math.min(640, Math.max(200, width - (mobile ? 220 : railW * 2 + 48)));
     const bioPrepared = prepareWithSegments(BIO, BIO_FONT);
     const bioLayout = layout(bioPrepared, contentW, BIO_LH);
     return { mobile, railW, contentW, nameH: NAME_LH, bioH: bioLayout.height };
   }
 
   function build() {
+    rebuilding = true;
     viewW = canvas.clientWidth || window.innerWidth;
     viewH = canvas.clientHeight || window.innerHeight;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -269,19 +292,19 @@ export function startAssemble(options: {
         ...glyph,
         font: NAME_FONT,
         size: NAME_SIZE,
-        color: NAME_COLOR,
+        role: 'name' as const,
       })),
       ...layoutGlyphs(BIO, BIO_FONT, contentW, BIO_LH, contentX, bioY, 'center').map((glyph) => ({
         ...glyph,
         font: BIO_FONT,
         size: BIO_SIZE,
-        color: BIO_COLOR,
+        role: 'bio' as const,
       })),
     ];
 
-    leftPad = mobile ? 8 : 16;
-    rightPad = mobile ? 8 : 16;
-    railInner = Math.max(48, railW - (mobile ? 16 : 36));
+    leftPad = mobile ? 10 : 18;
+    rightPad = mobile ? 10 : 18;
+    railInner = Math.max(64, railW - (mobile ? 18 : 40));
 
     const minRail = viewH + RAIL_LH * 4;
     leftText = randomRailText(railSeed, railInner, minRail, leftText);
@@ -313,6 +336,7 @@ export function startAssemble(options: {
     );
     rails = [...leftGlyphs, ...rightGlyphs];
 
+    const sources = assignSources(dest, rails, viewW);
     flyers = dest.map((glyph, index) => ({
       dest: glyph,
       delay: reduced ? 0 : (index / Math.max(dest.length - 1, 1)) * STAGGER_MS,
@@ -321,19 +345,15 @@ export function startAssemble(options: {
       fromY: glyph.y,
       fromSize: RAIL_SIZE,
       peeled: reduced || isSpace(glyph.ch),
+      sourceIndex: sources[index],
     }));
 
     used = new Set();
-    for (const item of taken) {
-      const idx = rails.findIndex(
-        (glyph, i) => !used.has(i) && glyph.ch === item.ch && (!item.side || glyph.side === item.side),
-      );
-      if (idx >= 0) used.add(idx);
-    }
     if (reduced) {
       settled = true;
       onSettled();
     }
+    rebuilding = false;
   }
 
   function scrollOffsets(now: number) {
@@ -350,23 +370,8 @@ export function startAssemble(options: {
       return;
     }
 
-    let index = findSource(
-      flyer.dest.ch,
-      flyer.dest.x,
-      flyer.dest.y,
-      rails,
-      used,
-      viewH,
-      leftScroll,
-      rightScroll,
-      leftLoop,
-      rightLoop,
-    );
-
-    if (index == null) {
-      index = rails.findIndex((glyph, i) => !used.has(i) && !isSpace(glyph.ch));
-    }
-    if (index == null || index < 0) {
+    const index = flyer.sourceIndex;
+    if (index == null || used.has(index)) {
       const fromLeft = flyer.dest.x < viewW / 2;
       flyer.fromX = fromLeft ? leftPad : viewW - rightPad - RAIL_SIZE;
       flyer.fromY = flyer.dest.y;
@@ -377,7 +382,6 @@ export function startAssemble(options: {
 
     used.add(index);
     const glyph = rails[index];
-    taken.push({ ch: glyph.ch, side: glyph.side });
     const loop = glyph.side === 'left' ? leftLoop : rightLoop;
     const scroll = glyph.side === 'left' ? leftScroll : rightScroll;
     flyer.fromCh = glyph.ch;
@@ -393,8 +397,9 @@ export function startAssemble(options: {
     ctx.rect(0, 0, leftPad + railInner + 8, viewH);
     ctx.rect(viewW - rightPad - railInner - 8, 0, rightPad + railInner + 8, viewH);
     ctx.clip();
+    const colors = themeColors();
     ctx.font = RAIL_FONT;
-    ctx.fillStyle = rgb(RAIL_COLOR);
+    ctx.fillStyle = rgb(colors.rail);
     ctx.textBaseline = 'top';
 
     for (let i = 0; i < rails.length; i += 1) {
@@ -407,12 +412,12 @@ export function startAssemble(options: {
       ctx.fillText(glyph.ch, glyph.x, y);
     }
 
-    const fadeLeft = ctx.createLinearGradient(0, 0, 0, viewH);
-    fadeLeft.addColorStop(0, BG);
-    fadeLeft.addColorStop(0.08, 'rgba(244,244,242,0)');
-    fadeLeft.addColorStop(0.92, 'rgba(244,244,242,0)');
-    fadeLeft.addColorStop(1, BG);
-    ctx.fillStyle = fadeLeft;
+    const fade = ctx.createLinearGradient(0, 0, 0, viewH);
+    fade.addColorStop(0, colors.bg);
+    fade.addColorStop(0.08, hexAlpha(colors.bg, 0));
+    fade.addColorStop(0.92, hexAlpha(colors.bg, 0));
+    fade.addColorStop(1, colors.bg);
+    ctx.fillStyle = fade;
     ctx.fillRect(0, 0, leftPad + railInner + 8, viewH);
     ctx.fillRect(viewW - rightPad - railInner - 8, 0, rightPad + railInner + 8, viewH);
     ctx.restore();
@@ -425,30 +430,17 @@ export function startAssemble(options: {
     const x = lerp(flyer.fromX, flyer.dest.x, t);
     const y = lerp(flyer.fromY, flyer.dest.y, t) - Math.sin(t * Math.PI) * 36;
     const size = lerp(flyer.fromSize, flyer.dest.size, t);
-    const color = lerpRgb(RAIL_COLOR, flyer.dest.color, t);
+    const colors = themeColors();
+    const destColor = flyer.dest.role === 'name' ? colors.name : colors.bio;
+    const color = lerpRgb(colors.rail, destColor, t);
     const alpha = local <= 0 ? 0 : Math.min(1, local / 0.12 + t);
 
     ctx.textBaseline = 'top';
     ctx.globalAlpha = alpha;
-
-    if (t < 0.85 && flyer.fromCh !== flyer.dest.ch) {
-      ctx.globalAlpha = alpha * (1 - t);
-      ctx.font = scaledFont(RAIL_FONT, size);
-      ctx.fillStyle = rgb(RAIL_COLOR);
-      ctx.fillText(flyer.fromCh, x, y);
-      ctx.globalAlpha = alpha * t;
-      ctx.font = scaledFont(flyer.dest.font, size);
-      ctx.fillStyle = rgb(color);
-      ctx.fillText(flyer.dest.ch, x, y);
-    } else if (t < 0.72) {
-      ctx.font = scaledFont(RAIL_FONT, size);
-      ctx.fillStyle = rgb(color);
-      ctx.fillText(flyer.fromCh, x, y);
-    } else {
-      ctx.font = scaledFont(flyer.dest.font, size);
-      ctx.fillStyle = rgb(color);
-      ctx.fillText(flyer.dest.ch, x, y);
-    }
+    const ch = t < 0.55 ? flyer.fromCh : flyer.dest.ch;
+    ctx.font = scaledFont(t < 0.72 ? RAIL_FONT : flyer.dest.font, size);
+    ctx.fillStyle = rgb(color);
+    ctx.fillText(ch, x, y);
 
     ctx.globalAlpha = 1;
   }
@@ -470,29 +462,42 @@ export function startAssemble(options: {
         const local = (now - assembleStart - flyer.delay) / FLY_MS;
         if (local >= 0 && !flyer.peeled) peel(flyer, left, right);
         if (local < 1) allDone = false;
-        if (flyer.peeled && local > 0) drawFlyer(flyer, local);
+        if (flyer.peeled && local >= 0) drawFlyer(flyer, local);
       }
       if (allDone) {
         settled = true;
         onSettled();
       }
     } else {
+      const colors = themeColors();
       ctx.textBaseline = 'top';
       for (const glyph of dest) {
         if (isSpace(glyph.ch)) continue;
         ctx.font = glyph.font;
-        ctx.fillStyle = rgb(glyph.color);
+        ctx.fillStyle = rgb(glyph.role === 'name' ? colors.name : colors.bio);
         ctx.fillText(glyph.ch, glyph.x, glyph.y);
       }
     }
 
   }
 
+  function hidePeeledSources() {
+    used = new Set();
+    for (const flyer of flyers) {
+      if (flyer.peeled && flyer.sourceIndex != null) used.add(flyer.sourceIndex);
+    }
+  }
+
   let resizeTimer = 0;
   function onResize() {
+    if (rebuilding) return;
+    const nextW = canvas.clientWidth || window.innerWidth;
+    const nextH = canvas.clientHeight || window.innerHeight;
+    if (nextW === viewW && nextH === viewH) return;
+
     window.clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(() => {
-      const previousDest = dest;
+      if (rebuilding) return;
       const previousFlyers = flyers;
       const wasSettled = settled;
       build();
@@ -501,19 +506,20 @@ export function startAssemble(options: {
         flyers.forEach((flyer) => {
           flyer.peeled = true;
         });
+        hidePeeledSources();
         return;
       }
       flyers = previousFlyers.map((flyer, i) => ({
         ...flyer,
         dest: dest[i] ?? flyer.dest,
+        sourceIndex: dest[i] ? flyers[i]?.sourceIndex ?? flyer.sourceIndex : flyer.sourceIndex,
       }));
       if (flyers.length === 0) flyers = previousFlyers;
-      void previousDest;
+      hidePeeledSources();
     }, 80);
   }
 
   let launched = false;
-  let interval = 0;
   const start = () => {
     if (launched || !running) return;
     launched = true;
@@ -523,7 +529,6 @@ export function startAssemble(options: {
       if (running) raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
-    interval = window.setInterval(() => frame(performance.now()), 50);
   };
   if (photo.complete && photo.naturalHeight > 0) start();
   else {
@@ -538,7 +543,6 @@ export function startAssemble(options: {
     destroy() {
       running = false;
       cancelAnimationFrame(raf);
-      window.clearInterval(interval);
       window.clearTimeout(resizeTimer);
       observer.disconnect();
       window.removeEventListener('resize', onResize);

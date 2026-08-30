@@ -14,10 +14,29 @@ body,
   overscroll-behavior: none;
 }
 
+html,
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #111111;
+  --text: #f2f2ee;
+  --text-muted: #c4c4be;
+  --icon: #f2f2ee;
+  --icon-hover: #bdbdb8;
+}
+
+html[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f4f4f2;
+  --text: #111111;
+  --text-muted: #333333;
+  --icon: #111111;
+  --icon-hover: #444444;
+}
+
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: #111;
-  background: #f4f4f2;
+  color: var(--text);
+  background: var(--bg);
   -webkit-font-smoothing: antialiased;
 }
 

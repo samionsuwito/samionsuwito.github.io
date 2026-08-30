@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faGraduationCap } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faGraduationCap, faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import { faGithub, faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import pfp from './assets/square.webp';
 import { BIO, NAME, startAssemble } from './assembleCanvas';
@@ -23,6 +23,16 @@ function App() {
   const photoRef = useRef<HTMLImageElement>(null);
   const [settled, setSettled] = useState(false);
   const [slot, setSlot] = useState({ nameH: 28, bioH: 80, contentW: 576 });
+  const [theme, setTheme] = useState(() =>
+    document.documentElement.dataset.theme === 'light' ? 'light' : 'dark',
+  );
+
+  function toggleTheme() {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('theme', next);
+  }
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -42,6 +52,14 @@ function App() {
   return (
     <>
       <canvas ref={canvasRef} className="field" aria-hidden="true" />
+      <button
+        type="button"
+        className="theme-toggle"
+        onClick={toggleTheme}
+        aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+      >
+        <FontAwesomeIcon icon={theme === 'dark' ? faSun : faMoon} />
+      </button>
       <main className={`page${settled ? ' is-settled' : ''}`}>
         <img ref={photoRef} className="photo" src={pfp} alt="" />
         <div
