@@ -5,6 +5,7 @@ import { faEnvelope, faGraduationCap, faMoon, faSun } from '@fortawesome/free-so
 import { faGithub, faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import pfp from './assets/square.webp';
 import { BIO, NAME, startAssemble } from './assembleCanvas';
+import GameBoy from './components/GameBoy';
 
 const LINKS = [
   { href: 'mailto:samion@berkeley.edu', label: 'Email', icon: faEnvelope, external: false },
@@ -80,6 +81,7 @@ function App() {
             </a>
           ))}
         </nav>
+        <GameBoy />
       </main>
       <h1 className="sr-only">{NAME}</h1>
       <p className="sr-only">{BIO}</p>

@@ -20,22 +20,25 @@
 }
 
 .photo {
-  width: min(220px, 56vw);
+  width: min(180px, 42vw);
   aspect-ratio: 1;
   object-fit: cover;
   border-radius: 8px;
+  flex-shrink: 0;
   animation: photo-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.04s backwards;
 }
 
 .text-slot {
   width: 100%;
   margin-top: 28px;
+  flex-shrink: 0;
 }
 
 .links {
   display: flex;
   gap: 28px;
   margin-top: 28px;
+  flex-shrink: 0;
 }
 
 .links a {
